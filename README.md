@@ -221,13 +221,7 @@ Do not commit real passwords or JWT secrets to the repository.
 Clone the repository:
 
 ```bash
-git clone <repository-url>
-```
-
-Navigate into the project:
-
-```bash
-cd Spring-Boot-JWT-Project-Management-API
+git clone https://github.com/SadafJabbar/JWT-Project-Management-API
 ```
 
 Run with Maven:
