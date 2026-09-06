@@ -1,6 +1,6 @@
 # Spring Boot JWT Project Management API
 
-A secure RESTful Project Management API built with **Java and Spring Boot**, focused on **JWT-based authentication, role-based authorization, and project-level access control**.
+A secure RESTful Project Management API built with **Java and Spring Boot**, focused on **JWT-based authentication, role-based authorization, refresh-token management, and project-level access control**.
 
 The API allows administrators and project managers to manage users, projects, memberships, and tasks while enforcing authorization based on both user roles and project ownership.
 
@@ -10,12 +10,15 @@ The API allows administrators and project managers to manage users, projects, me
 * Stateless authentication with Spring Security
 * Role-based authorization
 * Project-level authorization for managers
+* Access and refresh token management
+* Access-token revocation
+* Refresh-token revocation
 * User management
 * Project management
 * Project membership management
 * Task management
 * Password encryption using BCrypt
-* JWT token revocation through token blacklisting
+* JWT token blacklisting
 * Input validation
 * Global exception handling
 * OpenAPI / Swagger documentation
@@ -30,24 +33,82 @@ The application uses three roles:
 | ------- | ------------------------------------------------------- |
 | ADMIN   | Manage users, projects, and memberships                 |
 | MANAGER | Manage tasks and memberships for their assigned project |
-| MEMBER  | Access regular project functionality                    |
+| MEMBER  | No access to protected API endpoints                    |
 
-Authentication is handled using **JWT tokens**.
+Authentication is handled using **JWT access and refresh tokens**.
 
-After successful login, the client receives a JWT and sends it with protected requests:
+After successful login, the client receives:
+
+* Access token
+* Refresh token
+
+The access token is used for protected requests:
 
 ```text
-Authorization: Bearer <JWT>
+Authorization: Bearer <access-token>
 ```
 
-Spring Security validates the token and establishes the authenticated user.
-
-Authorization is then enforced at two levels:
+Authorization is enforced at two levels:
 
 1. **Role-based authorization** through Spring Security
-2. **Project ownership authorization** through the service layer
+2. **Project-level authorization** through the service layer
 
 For example, a MANAGER can only manage tasks belonging to the project assigned to that manager.
+
+A MEMBER can authenticate but does not have permission to access the protected API functionality.
+
+## JWT Authentication Flow
+
+```text
+Login
+  ↓
+Username + Password
+  ↓
+Spring Security Authentication
+  ↓
+Generate Access Token
+  ↓
+Generate Refresh Token
+  ↓
+Store Refresh Token + Current Access Token
+  ↓
+Return Tokens
+```
+
+The access token is short-lived, while the refresh token remains valid for a longer period.
+
+When the access token expires:
+
+```text
+Refresh Token
+     ↓
+Validate Refresh Token
+     ↓
+Find Refresh Token in Database
+     ↓
+Revoke Previous Access Token
+     ↓
+Generate New Access Token
+     ↓
+Update Current Access Token
+     ↓
+Return New Access Token
+```
+
+The refresh token itself remains valid until it expires or is revoked.
+
+## Token Revocation
+
+The application maintains a token blacklist for revoked tokens.
+
+When a new access token is generated using a refresh token, the previous access token is revoked.
+
+Logout revokes both:
+
+* Current access token
+* Refresh token
+
+This prevents revoked tokens from being used again.
 
 ## Request Flow
 
@@ -87,7 +148,7 @@ Authorization Check
 
 This prevents a manager from accessing or modifying tasks belonging to another project.
 
-## Authentication
+## Authentication Endpoints
 
 ### Login
 
@@ -95,13 +156,32 @@ This prevents a manager from accessing or modifying tasks belonging to another p
 POST /api/v1/auth/Login?username={username}&password={password}
 ```
 
-A successful login returns a JWT token.
+A successful login returns:
 
-Use the token for protected endpoints:
+```json
+{
+  "accessToken": "JWT_ACCESS_TOKEN",
+  "refreshToken": "JWT_REFRESH_TOKEN"
+}
+```
+
+Use the access token for protected endpoints:
 
 ```http
-Authorization: Bearer <JWT>
+Authorization: Bearer <access-token>
 ```
+
+### Refresh Access Token
+
+```http
+POST /api/v1/refresh?refreshToken={refreshToken}
+```
+
+The refresh token is validated and used to generate a new access token.
+
+The previous access token is revoked and the newly generated access token becomes the current valid access token for that refresh-token session.
+
+The refresh token remains valid until its own expiration or revocation.
 
 ### Logout
 
@@ -109,7 +189,13 @@ Authorization: Bearer <JWT>
 POST /api/v1/auth/Logout
 ```
 
-The JWT is added to the token blacklist and can no longer be used for authentication.
+Send the current access token:
+
+```http
+Authorization: Bearer <access-token>
+```
+
+The application identifies the authenticated user, finds the associated refresh token, and revokes both the access and refresh tokens.
 
 ## Main API Areas
 
@@ -118,6 +204,7 @@ The JWT is added to the token blacklist and can no longer be used for authentica
 ```text
 POST /api/v1/auth/Login
 POST /api/v1/auth/Logout
+POST /api/v1/refresh
 ```
 
 ### Users
@@ -163,9 +250,10 @@ DELETE /api/v1/tasks/{id}
 ## Technology Stack
 
 * Java 21
-* Spring Boot
-* Spring Security
-* JWT
+* Spring Boot 4.1.1
+* Spring Security 7
+* JSON Web Tokens (JWT)
+* JJWT
 * Spring Data JPA
 * Hibernate
 * MySQL
@@ -178,14 +266,14 @@ DELETE /api/v1/tasks/{id}
 src/main/java
 └── project_management__api
     ├── configuration
-    ├── controllers
+    ├── controller
     ├── dtos
     ├── entities
     ├── enums
     ├── exceptions
     ├── mapper
     ├── repositories
-    ├── security
+    ├── Security
     └── service
 ```
 
@@ -211,17 +299,25 @@ JWT configuration:
 
 ```properties
 jwt.secret=YOUR_SECRET_KEY
-jwt.expiration=86400000
+jwt.access-expiration=900000
+jwt.refresh-expiration=604800000
 ```
 
-Do not commit real passwords or JWT secrets to the repository.
+The default configuration represents:
+
+```text
+Access Token  → 15 minutes
+Refresh Token → 7 days
+```
+
+Do not commit real database passwords or JWT secrets to the repository.
 
 ## Running the Application
 
 Clone the repository:
 
 ```bash
-git clone https://github.com/SadafJabbar/JWT-Project-Management-API
+git clone https://github.com/SadafJabbar/JWT-Project-Management-API.git
 ```
 
 Run with Maven:
@@ -244,7 +340,7 @@ http://localhost:8080
 
 ## API Documentation
 
-OpenAPI documentation is available at:
+OpenAPI documentation:
 
 ```text
 http://localhost:8080/v3/api-docs
@@ -274,6 +370,44 @@ If the same manager attempts to create, update, retrieve, or delete a task belon
 
 This ensures that authentication alone is not enough — the user's relationship with the requested project is also verified.
 
+Members do not have access to these protected management endpoints.
+
+## Architecture
+
+The application follows a layered architecture:
+
+```text
+Controller
+    ↓
+Service
+    ↓
+Mapper
+    ↓
+Repository
+    ↓
+Database
+```
+
+### Controller
+
+Handles HTTP requests and responses.
+
+### Service
+
+Contains business logic and authorization rules.
+
+### Mapper
+
+Converts between entities and DTOs without accessing repositories.
+
+### Repository
+
+Handles persistence and database operations using Spring Data JPA.
+
+### Security
+
+Handles JWT authentication, token validation, role-based authorization, and token revocation.
+
 ## Purpose
 
 This project was built to practice and demonstrate backend development concepts including:
@@ -281,18 +415,20 @@ This project was built to practice and demonstrate backend development concepts 
 * REST API development
 * Spring Boot architecture
 * JWT authentication
+* Access and refresh token management
 * Spring Security
 * Role-based access control
+* Project-level authorization
 * Service-layer authorization
 * JPA and Hibernate
 * DTO and mapper patterns
 * Exception handling
 * API documentation
-* Automated testing
-* Performance and load testing
+* Password encryption
+* Token revocation
 
 ## Status
 
 🚧 **In Development**
 
-Additional improvements and engineering practices are being added as the project evolves.
+Additional engineering practices and improvements will be added as the project evolves.
