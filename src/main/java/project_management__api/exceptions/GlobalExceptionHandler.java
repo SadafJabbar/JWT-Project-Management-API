@@ -61,6 +61,12 @@ public class GlobalExceptionHandler {
         return exceptionResponse.exceptionResponse(ex,webRequest,HttpStatus.INTERNAL_SERVER_ERROR,ex.getMessage());
     }
 
+    @ExceptionHandler(RefreshTokenNotFound.class)
+    public ResponseEntity<Map<String,Object>> refreshTokenException(RefreshTokenNotFound ex, WebRequest webRequest){
+        return exceptionResponse.exceptionResponse(ex,webRequest,HttpStatus.NOT_FOUND,ex.getMessage());
+    }
+
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Map<String,Object>> methodArgumenentNotValid(MethodArgumentNotValidException ex,WebRequest webRequest){
         Map<String,Object> map=new HashMap<>();

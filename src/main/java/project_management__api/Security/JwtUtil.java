@@ -6,6 +6,7 @@ import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Value;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+import project_management__api.entities.RefreshTokenEntity;
 
 import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
@@ -18,8 +19,11 @@ public class JwtUtil {
     @Value("${jwt.secret}")
     private String secret;
 
-    @Value("${jwt.expiration}")
-    private int expiration;
+    @Value("${jwt.access-expiration}")
+    private Long accessExpiration;
+
+    @Value("${jwt.refresh-expiration}")
+    private Long refreshExpiration;
 
     private SecretKey key;
 
@@ -28,11 +32,19 @@ public class JwtUtil {
         this.key = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
     }
 
-    public String generateToken(String username) {
+    public String generateAccessToken(String username) {
         return Jwts.builder()
                 .subject(username)
                 .issuedAt(new Date())
-                .expiration(new Date((new Date()).getTime() + expiration))
+                .expiration(new Date((new Date()).getTime() + accessExpiration))
+                .signWith(key)
+                .compact();
+    }
+
+    public String generateRefreshToken(String username){
+        return Jwts.builder().subject(username)
+                .issuedAt(new Date())
+                .expiration(new Date(System.currentTimeMillis()+refreshExpiration))
                 .signWith(key)
                 .compact();
     }

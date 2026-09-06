@@ -39,6 +39,8 @@ public class WebSecurityConfig {
             .authorizeHttpRequests(a-> a
                     .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
                     .requestMatchers("/api/v1/auth","/api/v1/auth/**").permitAll()
+                    .requestMatchers("/api/v1/refresh","/api/v1/refresh/**").permitAll()
+
 
                     .requestMatchers("/api/v1/users","/api/v1/users/**").hasRole(Role.ADMIN.name())
 
@@ -49,8 +51,8 @@ public class WebSecurityConfig {
                     .requestMatchers(HttpMethod.GET,"/api/v1/membership/**").hasAnyRole(Role.MANAGER.name(),Role.ADMIN.name())
                     .requestMatchers(HttpMethod.PUT,"/api/v1/membership/**").hasAnyRole(Role.MANAGER.name(),Role.ADMIN.name())
                     .requestMatchers(HttpMethod.POST,"/api/v1/membership").hasAnyRole(Role.MANAGER.name(),Role.ADMIN.name())
-                    .requestMatchers("/api/v1/tasks","/api/v1/tasks/**").hasRole(Role.MANAGER.name())
 
+                    .requestMatchers("/api/v1/tasks","/api/v1/tasks/**").hasRole(Role.MANAGER.name())
                     .anyRequest().authenticated());
 
 
