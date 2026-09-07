@@ -24,6 +24,7 @@ The API allows administrators and project managers to manage users, projects, me
 * OpenAPI / Swagger documentation
 * JPA / Hibernate persistence
 * MySQL database integration
+* Aspect Oriented Programming
 
 ## Security Model
 
@@ -407,6 +408,16 @@ Handles persistence and database operations using Spring Data JPA.
 ### Security
 
 Handles JWT authentication, token validation, role-based authorization, and token revocation.
+## AOP
+
+- Aspect-Oriented Programming (AOP)
+- Logging Aspect
+- Execution Time Aspect
+- Exception Aspect
+- Result Aspect
+- `@Before`, `@After`, `@Around`, `@AfterReturning`, and `@AfterThrowing`
+- Custom `@TrackExecution` annotation
+- Separation of cross-cutting concerns from business logic
 
 ## Purpose
 
