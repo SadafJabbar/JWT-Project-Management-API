@@ -8,6 +8,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import project_management__api.Security.JwtUtil;
+import project_management__api.annotation.TrackExecution;
 import project_management__api.dtos.AuthResponse;
 import project_management__api.entities.RefreshTokenEntity;
 import project_management__api.entities.UserEntity;
@@ -38,6 +39,7 @@ public class AuthService {
     }
 
 
+    @TrackExecution
     public AuthResponse loginUser(String username,String password){
         Authentication authentication=authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(

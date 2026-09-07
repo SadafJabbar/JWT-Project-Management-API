@@ -2,6 +2,7 @@ package project_management__api.dtos;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Size;
+import project_management__api.enums.Role;
 
 public record UserRequest(
         @Size(min = 3,max = 30,message = "username must be between 3 to 30 characters ")

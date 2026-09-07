@@ -3,6 +3,7 @@ package project_management__api.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import project_management__api.annotation.TrackExecution;
 import project_management__api.dtos.ApiResponse;
 import project_management__api.dtos.TaskRequest;
 import project_management__api.dtos.TaskResponse;
@@ -43,7 +44,7 @@ public class TaskService {
         this.membershipRepository=membershipRepository;
     }
 
-
+    @TrackExecution
     public ApiResponse<TaskResponse> getById(Long id){
         String username= SecurityContextHolder.getContext().getAuthentication().getName();
         UserEntity user=userRepository.findByUsername(username).orElseThrow(()-> new UsernameNotFound(username));
@@ -61,7 +62,7 @@ public class TaskService {
                 .build();
     }
 
-
+    @TrackExecution
     public ApiResponse<List<TaskResponse>> getAllTasks(){
         String username= SecurityContextHolder.getContext().getAuthentication().getName();
         UserEntity user=userRepository.findByUsername(username).orElseThrow(()-> new UsernameNotFound(username));
@@ -139,7 +140,7 @@ public class TaskService {
                         .build();
             }
 
-
+    @TrackExecution
     public ApiResponse<TaskResponse> deleteTask(Long id){
         String username= SecurityContextHolder.getContext().getAuthentication().getName();
         UserEntity user=userRepository.findByUsername(username).orElseThrow(()-> new UsernameNotFound(username));

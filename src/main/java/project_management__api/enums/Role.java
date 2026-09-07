@@ -1,4 +1,4 @@
-package project_management__api.dtos;
+package project_management__api.enums;
 
 public enum Role {
     ADMIN,

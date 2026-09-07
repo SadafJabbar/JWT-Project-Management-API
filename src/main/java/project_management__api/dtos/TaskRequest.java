@@ -2,6 +2,8 @@ package project_management__api.dtos;
 
 import jakarta.validation.constraints.Size;
 import lombok.Builder;
+import project_management__api.enums.TaskPriority;
+import project_management__api.enums.TaskStatus;
 
 @Builder
 public record TaskRequest(

@@ -2,7 +2,7 @@ package project_management__api.entities;
 
 import jakarta.persistence.*;
 import lombok.*;
-import project_management__api.dtos.Role;
+import project_management__api.enums.Role;
 
 import java.time.LocalDate;
 

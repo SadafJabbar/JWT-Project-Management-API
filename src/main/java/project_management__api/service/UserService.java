@@ -6,6 +6,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import project_management__api.annotation.TrackExecution;
 import project_management__api.dtos.ApiResponse;
 import project_management__api.dtos.UserRequest;
 import project_management__api.dtos.UserResponse;
@@ -34,6 +35,7 @@ public class UserService {
     }
 
 
+    @TrackExecution
     public ApiResponse<UserResponse> getById(Long id){
        UserEntity userEntity= userRepository.findById(id).orElseThrow(()-> new UserNotFoundException(id));
         UserResponse userResponse= userMapper.transformToUserResponse(userEntity);
@@ -44,6 +46,7 @@ public class UserService {
     }
 
 
+    @TrackExecution
     public ApiResponse<List<UserResponse>> getAllUsers() {
         List<UserResponse> userResponses = new ArrayList<>();
         for (UserEntity userEntity : userRepository.findAll()) {
@@ -78,6 +81,7 @@ public class UserService {
     }
 
 
+    @TrackExecution
     public ApiResponse<UserResponse> deleteUser(Long id){
         UserEntity userEntity=userRepository.findById(id).orElseThrow(()-> new UserNotFoundException(id));
         userRepository.deleteById(id);

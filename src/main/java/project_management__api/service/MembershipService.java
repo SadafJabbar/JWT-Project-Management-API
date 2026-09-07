@@ -3,8 +3,10 @@ package project_management__api.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import project_management__api.annotation.TrackExecution;
 import project_management__api.dtos.*;
 import project_management__api.entities.*;
+import project_management__api.enums.Role;
 import project_management__api.exceptions.*;
 import project_management__api.mapper.MembershipMapper;
 import project_management__api.mapper.UserMembershipMapper;
@@ -36,13 +38,13 @@ public class MembershipService {
         this.userMembershipMapper=userMembershipMapper;
     }
 
-
+    @TrackExecution
     public ApiResponse<MembershipResponse> getMembershipDataById(Long id){
         MembershipEntity membershipEntity=membershipRepository.findById(id).orElseThrow(()-> new MemberShipNotFoundException(id));
         Long projectId=membershipEntity.getProjectEntity().getProjectId();
         String username= SecurityContextHolder.getContext().getAuthentication().getName();
         UserEntity userEntity=userRepository.findByUsername(username).orElseThrow(()-> new UsernameNotFound(username));
-        if(userEntity.getSystemRole()==Role.MANAGER){
+        if(userEntity.getSystemRole()== Role.MANAGER){
             boolean isManagerOfProject=membershipEntity.getUserMembershipEntities()
                     .stream().anyMatch(userMembershipEntity ->
                             userMembershipEntity.getUserEntity().getUserId().equals(userEntity.getUserId())
@@ -61,7 +63,7 @@ public class MembershipService {
     }
 
 
-
+    @TrackExecution
     public ApiResponse<List<MembershipResponse>> getAllMembershipData(){
         List<MembershipResponse> membershipResponses=new ArrayList<>();
         for (MembershipEntity membershipEntity:membershipRepository.findAll()){
@@ -240,7 +242,7 @@ public class MembershipService {
     }
 
 
-
+    @TrackExecution
     public ApiResponse<MembershipResponse> deleteMembership( Long id){
         MembershipEntity membershipEntity=membershipRepository.findById(id)
                 .orElseThrow(()-> new MemberShipNotFoundException(id));

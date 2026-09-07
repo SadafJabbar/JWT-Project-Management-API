@@ -1,5 +1,6 @@
 package project_management__api.service;
 
+import project_management__api.annotation.TrackExecution;
 import project_management__api.dtos.ApiResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -26,6 +27,8 @@ public class ProjectService {
         this.projectMapper=projectMapper;
     }
 
+
+    @TrackExecution
     public ApiResponse<ProjectResponse> getById(Long id){
         ProjectEntity projectEntity=projectRepository.findById(id).orElseThrow(()-> new ProjectNotFoundException(id));
         ProjectResponse projectResponse=projectMapper.transformToProjectResponse(projectEntity);
@@ -35,7 +38,7 @@ public class ProjectService {
                 .build();
     }
 
-
+    @TrackExecution
     public ApiResponse<List<ProjectResponse>> getAllProjects(){
         List<ProjectResponse> responses=new ArrayList<>();
         for (ProjectEntity projectEntity:projectRepository.findAll()){
@@ -70,7 +73,7 @@ public class ProjectService {
                 .build();
     }
 
-
+    @TrackExecution
     public ApiResponse<ProjectResponse> deleteProject(Long id){
         ProjectEntity projectEntity=projectRepository.findById(id).orElseThrow(()-> new ProjectNotFoundException(id));
         projectRepository.deleteById(id);

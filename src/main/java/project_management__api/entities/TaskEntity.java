@@ -2,8 +2,8 @@ package project_management__api.entities;
 
 import jakarta.persistence.*;
 import lombok.*;
-import project_management__api.dtos.TaskPriority;
-import project_management__api.dtos.TaskStatus;
+import project_management__api.enums.TaskPriority;
+import project_management__api.enums.TaskStatus;
 
 import java.time.LocalDate;
 

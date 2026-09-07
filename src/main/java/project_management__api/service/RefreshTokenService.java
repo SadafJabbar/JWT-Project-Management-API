@@ -2,9 +2,9 @@ package project_management__api.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import project_management__api.Security.JwtUtil;
+import project_management__api.annotation.TrackExecution;
 import project_management__api.entities.RefreshTokenEntity;
 import project_management__api.entities.UserEntity;
 import project_management__api.exceptions.RefreshTokenNotFound;
@@ -12,7 +12,6 @@ import project_management__api.exceptions.UsernameNotFound;
 import project_management__api.repositories.RefreshTokenRepository;
 import project_management__api.repositories.UserRepository;
 
-import javax.xml.crypto.Data;
 import java.time.Instant;
 import java.util.Date;
 
@@ -38,6 +37,7 @@ public class RefreshTokenService {
         this.userRepository=userRepository;
     }
 
+
     public RefreshTokenEntity createRefreshTokenEntity(String refreshtoken,String username,String accessToken){
         UserEntity user=userRepository.findByUsername(username)
                 .orElseThrow(()-> new UsernameNotFound(username));
@@ -51,6 +51,7 @@ public class RefreshTokenService {
         return refreshTokenEntity;
     }
 
+    @TrackExecution
     public String generateAccess(String token){
             RefreshTokenEntity refreshTokenEntity=refreshTokenRepository.findByToken(token)
                     .orElseThrow(()-> new RefreshTokenNotFound("this Refresh token was found in repo"));
