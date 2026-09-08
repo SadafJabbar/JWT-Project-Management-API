@@ -37,7 +37,7 @@ public class UserService {
 
     @TrackExecution
     public ApiResponse<UserResponse> getById(Long id){
-       UserEntity userEntity= userRepository.findById(id).orElseThrow(()-> new UserNotFoundException(id));
+       UserEntity userEntity= userRepository.findByUserIdAndDeletedFalse(id).orElseThrow(()-> new UserNotFoundException(id));
         UserResponse userResponse= userMapper.transformToUserResponse(userEntity);
         return ApiResponse.<UserResponse>builder()
                 .message("Record of id:" +id+ " Fetched successfully")
@@ -50,8 +50,9 @@ public class UserService {
     public ApiResponse<List<UserResponse>> getAllUsers() {
         List<UserResponse> userResponses = new ArrayList<>();
         for (UserEntity userEntity : userRepository.findAll()) {
+            if(!userEntity.isDeleted()){
             UserResponse userResponse = userMapper.transformToUserResponse(userEntity);
-            userResponses.add(userResponse);
+            userResponses.add(userResponse);}
         }
         return ApiResponse.<List<UserResponse>>builder()
                 .message("All User Records Fetched Successfully")
@@ -84,7 +85,8 @@ public class UserService {
     @TrackExecution
     public ApiResponse<UserResponse> deleteUser(Long id){
         UserEntity userEntity=userRepository.findById(id).orElseThrow(()-> new UserNotFoundException(id));
-        userRepository.deleteById(id);
+        userEntity.setDeleted(true);
+        userRepository.save(userEntity);
        UserResponse userResponse= userMapper.transformToUserResponse(userEntity);
         return ApiResponse.<UserResponse>builder()
                 .message("Record Deleted successfully")

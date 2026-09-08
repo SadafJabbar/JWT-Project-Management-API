@@ -38,15 +38,15 @@ public class RefreshTokenService {
     }
 
 
-    public RefreshTokenEntity createRefreshTokenEntity(String refreshtoken,String username,String accessToken){
-        UserEntity user=userRepository.findByUsername(username)
-                .orElseThrow(()-> new UsernameNotFound(username));
-        RefreshTokenEntity refreshTokenEntity= RefreshTokenEntity.builder().
-                user(user)
-                .token(refreshtoken)
-                .validAccessToken(accessToken)
-                .expiresAt(new Date(System.currentTimeMillis()+refreshExpiration).toInstant())
-                .build();
+    public RefreshTokenEntity createRefreshTokenEntity(String refreshtoken, String username, String accessToken) {
+        UserEntity user = userRepository.findByUsernameAndDeletedFalse(username)
+                .orElseThrow(() -> new UsernameNotFound(username));
+        RefreshTokenEntity refreshTokenEntity = refreshTokenRepository.findByUser_UserId(user.getUserId())
+                .orElseGet(RefreshTokenEntity::new);
+        refreshTokenEntity.setUser(user);
+        refreshTokenEntity.setToken(refreshtoken);
+        refreshTokenEntity.setValidAccessToken(accessToken);
+        refreshTokenEntity.setExpiresAt(new Date(System.currentTimeMillis() + refreshExpiration).toInstant());
         refreshTokenRepository.save(refreshTokenEntity);
         return refreshTokenEntity;
     }

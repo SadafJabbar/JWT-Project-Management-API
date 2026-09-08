@@ -43,7 +43,7 @@ public class MembershipService {
         MembershipEntity membershipEntity=membershipRepository.findById(id).orElseThrow(()-> new MemberShipNotFoundException(id));
         Long projectId=membershipEntity.getProjectEntity().getProjectId();
         String username= SecurityContextHolder.getContext().getAuthentication().getName();
-        UserEntity userEntity=userRepository.findByUsername(username).orElseThrow(()-> new UsernameNotFound(username));
+        UserEntity userEntity=userRepository.findByUsernameAndDeletedFalse(username).orElseThrow(()-> new UsernameNotFound(username));
         if(userEntity.getSystemRole()== Role.MANAGER){
             boolean isManagerOfProject=membershipEntity.getUserMembershipEntities()
                     .stream().anyMatch(userMembershipEntity ->
@@ -93,7 +93,7 @@ public class MembershipService {
                     " already exists. u need to update the membership if u want to add or change something.");
         }
         String username=SecurityContextHolder.getContext().getAuthentication().getName();
-        UserEntity loggedInUser=userRepository.findByUsername(username).orElseThrow(()-> new UsernameNotFound(username));
+        UserEntity loggedInUser=userRepository.findByUsernameAndDeletedFalse(username).orElseThrow(()-> new UsernameNotFound(username));
         if(loggedInUser.getSystemRole()==Role.MANAGER){
             boolean alreadyAssigned=membershipRepository
                     .findAll()
@@ -116,7 +116,7 @@ public class MembershipService {
 
         int managerCount=0;
         for (UserMembershipRequest userMembershipRequest:membershipRequest.userMembershipRequestList()){
-            UserEntity userEntity=userRepository.findById(userMembershipRequest.userId()).orElseThrow(()-> new UserNotFoundException(userMembershipRequest.userId()));
+            UserEntity userEntity=userRepository.findByUserIdAndDeletedFalse(userMembershipRequest.userId()).orElseThrow(()-> new UserNotFoundException(userMembershipRequest.userId()));
             if(userMembershipRequest.taskIds().size()>3){
                 throw new RuntimeException("Members cant have more than 3 tasks");
             }
@@ -170,7 +170,7 @@ public class MembershipService {
                 .orElseThrow(()-> new MemberShipNotFoundException(id));
 
         String username= SecurityContextHolder.getContext().getAuthentication().getName();
-        UserEntity user=userRepository.findByUsername(username).orElseThrow(()-> new UsernameNotFound(username));
+        UserEntity user=userRepository.findByUsernameAndDeletedFalse(username).orElseThrow(()-> new UsernameNotFound(username));
         if(user.getSystemRole()==Role.MANAGER){
             boolean isManagerOfProject=membershipEntity.getUserMembershipEntities()
                     .stream().anyMatch(userMembershipEntity ->
@@ -192,7 +192,7 @@ public class MembershipService {
         Map<Long, Long> assignedTaskIds = new HashMap<>();
         List<UserMembershipEntity> userMembershipEntitiesList=new ArrayList<>();
         for (UserMembershipRequest userMembershipRequest:membershipRequest.userMembershipRequestList()){
-            UserEntity userEntity=userRepository.findById(userMembershipRequest.userId())
+            UserEntity userEntity=userRepository.findByUserIdAndDeletedFalse(userMembershipRequest.userId())
                     .orElseThrow(()-> new UserNotFoundException(userMembershipRequest.userId()));
 
             if(userMembershipRequest.taskIds().size()>3){

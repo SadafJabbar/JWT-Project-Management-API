@@ -47,7 +47,7 @@ public class TaskService {
     @TrackExecution
     public ApiResponse<TaskResponse> getById(Long id){
         String username= SecurityContextHolder.getContext().getAuthentication().getName();
-        UserEntity user=userRepository.findByUsername(username).orElseThrow(()-> new UsernameNotFound(username));
+        UserEntity user=userRepository.findByUsernameAndDeletedFalse(username).orElseThrow(()-> new UsernameNotFound(username));
         MembershipEntity membershipEntity=membershipRepository.findByUserMembershipEntities_UserEntity_UserId(user.getUserId())
                 .orElseThrow(()-> new RuntimeException("You do not have any membership or any project assigned yet"));
         Long projectId=membershipEntity.getProjectEntity().getProjectId();
@@ -65,7 +65,7 @@ public class TaskService {
     @TrackExecution
     public ApiResponse<List<TaskResponse>> getAllTasks(){
         String username= SecurityContextHolder.getContext().getAuthentication().getName();
-        UserEntity user=userRepository.findByUsername(username).orElseThrow(()-> new UsernameNotFound(username));
+        UserEntity user=userRepository.findByUsernameAndDeletedFalse(username).orElseThrow(()-> new UsernameNotFound(username));
         MembershipEntity membershipEntity=membershipRepository.findByUserMembershipEntities_UserEntity_UserId(user.getUserId())
                 .orElseThrow(()-> new RuntimeException("You do not have any membership or any project assigned yet"));
         Long projectId=membershipEntity.getProjectEntity().getProjectId();
@@ -87,7 +87,7 @@ public class TaskService {
     public ApiResponse<TaskResponse> createTask(TaskRequest taskRequest){
         String username= SecurityContextHolder.getContext().getAuthentication().getName();
 
-        UserEntity user=userRepository.findByUsername(username).orElseThrow(()-> new UsernameNotFound(username));
+        UserEntity user=userRepository.findByUsernameAndDeletedFalse(username).orElseThrow(()-> new UsernameNotFound(username));
 
         MembershipEntity membershipEntity=membershipRepository.findByUserMembershipEntities_UserEntity_UserId(user.getUserId())
                 .orElseThrow(()-> new RuntimeException("You do not have any membership or any project assigned yet"));
@@ -114,7 +114,7 @@ public class TaskService {
     public ApiResponse<TaskResponse> updateTask(Long id,TaskRequest taskRequest){
         String username= SecurityContextHolder.getContext().getAuthentication().getName();
 
-        UserEntity user=userRepository.findByUsername(username).orElseThrow(()-> new UsernameNotFound(username));
+        UserEntity user=userRepository.findByUsernameAndDeletedFalse(username).orElseThrow(()-> new UsernameNotFound(username));
 
         MembershipEntity membershipEntity=membershipRepository.findByUserMembershipEntities_UserEntity_UserId(user.getUserId())
                 .orElseThrow(()-> new RuntimeException("You do not have any membership or any project assigned yet"));
@@ -143,7 +143,7 @@ public class TaskService {
     @TrackExecution
     public ApiResponse<TaskResponse> deleteTask(Long id){
         String username= SecurityContextHolder.getContext().getAuthentication().getName();
-        UserEntity user=userRepository.findByUsername(username).orElseThrow(()-> new UsernameNotFound(username));
+        UserEntity user=userRepository.findByUsernameAndDeletedFalse(username).orElseThrow(()-> new UsernameNotFound(username));
         MembershipEntity membershipEntity=membershipRepository.findByUserMembershipEntities_UserEntity_UserId(user.getUserId())
                 .orElseThrow(()-> new RuntimeException("You do not have any membership or any project assigned yet"));
         Long projectId=membershipEntity.getProjectEntity().getProjectId();

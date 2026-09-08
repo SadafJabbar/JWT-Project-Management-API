@@ -30,4 +30,7 @@ public class UserEntity {
     public void date(){
         this.createdAt=LocalDate.now();
     }
+
+    @Column(nullable = false)
+    private boolean deleted;
 }

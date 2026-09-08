@@ -14,6 +14,7 @@ public class UserMapper {
                 .password(password)
                 .email(userRequest.email())
                 .systemRole(userRequest.systemRole())
+                .deleted(false)
                 .build();
     }
     public UserResponse transformToUserResponse(UserEntity userEntity){
