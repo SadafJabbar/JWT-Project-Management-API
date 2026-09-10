@@ -1,6 +1,8 @@
 package project_management__api.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import project_management__api.annotation.TrackExecution;
@@ -38,6 +40,7 @@ public class MembershipService {
         this.userMembershipMapper=userMembershipMapper;
     }
 
+    @Cacheable(value = "membership",key = "#id")
     @TrackExecution
     public ApiResponse<MembershipResponse> getMembershipDataById(Long id){
         MembershipEntity membershipEntity=membershipRepository.findById(id).orElseThrow(()-> new MemberShipNotFoundException(id));
@@ -165,6 +168,7 @@ public class MembershipService {
 
 
 
+    @CacheEvict(value = "membership",key = "#id")
     public ApiResponse<MembershipResponse> updateMembership(Long id,MembershipRequest membershipRequest){
         MembershipEntity membershipEntity=membershipRepository.findById(id)
                 .orElseThrow(()-> new MemberShipNotFoundException(id));
@@ -242,6 +246,7 @@ public class MembershipService {
     }
 
 
+    @CacheEvict(value = "membership",key = "#id")
     @TrackExecution
     public ApiResponse<MembershipResponse> deleteMembership( Long id){
         MembershipEntity membershipEntity=membershipRepository.findById(id)

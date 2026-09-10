@@ -1,6 +1,8 @@
 package project_management__api.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import project_management__api.annotation.TrackExecution;
@@ -44,6 +46,7 @@ public class TaskService {
         this.membershipRepository=membershipRepository;
     }
 
+    @Cacheable(value = "task",key = "#id")
     @TrackExecution
     public ApiResponse<TaskResponse> getById(Long id){
         String username= SecurityContextHolder.getContext().getAuthentication().getName();
@@ -111,6 +114,7 @@ public class TaskService {
                             .build();
     }
 
+    @CacheEvict(value = "task",key = "#id")
     public ApiResponse<TaskResponse> updateTask(Long id,TaskRequest taskRequest){
         String username= SecurityContextHolder.getContext().getAuthentication().getName();
 
@@ -140,6 +144,7 @@ public class TaskService {
                         .build();
             }
 
+    @CacheEvict(value = "task",key = "#id")
     @TrackExecution
     public ApiResponse<TaskResponse> deleteTask(Long id){
         String username= SecurityContextHolder.getContext().getAuthentication().getName();

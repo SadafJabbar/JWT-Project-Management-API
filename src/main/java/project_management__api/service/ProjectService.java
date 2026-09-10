@@ -1,5 +1,7 @@
 package project_management__api.service;
 
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import project_management__api.annotation.TrackExecution;
 import project_management__api.dtos.ApiResponse;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,6 +30,7 @@ public class ProjectService {
     }
 
 
+    @Cacheable(value = "project",key = "#id")
     @TrackExecution
     public ApiResponse<ProjectResponse> getById(Long id){
         ProjectEntity projectEntity=projectRepository.findById(id).orElseThrow(()-> new ProjectNotFoundException(id));
@@ -61,7 +64,7 @@ public class ProjectService {
                 .build();
     }
 
-
+    @CacheEvict(value = "project",key = "#id")
     public ApiResponse<ProjectResponse> updateProject(Long id,ProjectRequest projectRequest){
         ProjectEntity projectEntity=projectRepository.findById(id).orElseThrow(()-> new ProjectNotFoundException(id));
         ProjectEntity updatedEntity=projectMapper.updateProjectEntity(projectEntity,projectRequest);
@@ -73,6 +76,7 @@ public class ProjectService {
                 .build();
     }
 
+    @CacheEvict(value = "project",key = "#id")
     @TrackExecution
     public ApiResponse<ProjectResponse> deleteProject(Long id){
         ProjectEntity projectEntity=projectRepository.findById(id).orElseThrow(()-> new ProjectNotFoundException(id));

@@ -2,6 +2,8 @@ package project_management__api.service;
 
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -35,8 +37,10 @@ public class UserService {
     }
 
 
+    @Cacheable(value = "user",key = "#id")
     @TrackExecution
     public ApiResponse<UserResponse> getById(Long id){
+        System.out.println("hit database");
        UserEntity userEntity= userRepository.findByUserIdAndDeletedFalse(id).orElseThrow(()-> new UserNotFoundException(id));
         UserResponse userResponse= userMapper.transformToUserResponse(userEntity);
         return ApiResponse.<UserResponse>builder()
@@ -70,6 +74,7 @@ public class UserService {
     }
 
 
+    @CacheEvict(value = "user",key = "#id")
     public ApiResponse<UserResponse> updateUser(Long id,UserRequest userRequest){
         UserEntity userEntity=userRepository.findById(id).orElseThrow(()-> new UserNotFoundException(id));
         String encodedPassword=passwordEncoder().encode(userRequest.password());
@@ -81,7 +86,7 @@ public class UserService {
                 .data(userResponse).build();
     }
 
-
+    @CacheEvict(value = "user",key = "#id")
     @TrackExecution
     public ApiResponse<UserResponse> deleteUser(Long id){
         UserEntity userEntity=userRepository.findById(id).orElseThrow(()-> new UserNotFoundException(id));
