@@ -25,6 +25,8 @@ The API allows administrators and project managers to manage users, projects, me
 * JPA / Hibernate persistence
 * MySQL database integration
 * Aspect Oriented Programming
+*  Soft delete for users
+* Caching for frequently accessed data
 
 ## Security Model
 
@@ -260,6 +262,7 @@ DELETE /api/v1/tasks/{id}
 * MySQL
 * Maven
 * OpenAPI / Swagger
+* Caffeine Cache
 
 ## Project Structure
 
@@ -418,6 +421,10 @@ Handles JWT authentication, token validation, role-based authorization, and toke
 - `@Before`, `@After`, `@Around`, `@AfterReturning`, and `@AfterThrowing`
 - Custom `@TrackExecution` annotation
 - Separation of cross-cutting concerns from business logic
+* **Soft Delete for Users** — Users are marked as deleted instead of being permanently removed from the database, preserving their records while preventing them from appearing in normal queries.
+
+* **Caching** — Frequently accessed data is stored temporarily in cache to reduce repeated database queries and improve API response performance.
+
 
 ## Purpose
 
